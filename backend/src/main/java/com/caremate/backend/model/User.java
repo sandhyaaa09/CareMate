@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,11 +30,23 @@ public class User {
 
     @NotBlank
     @Size(min = 6, max = 120)
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Role role;
+
+    @Column(length = 6)
+    @JsonIgnore
+    private String otp;
+
+    @JsonIgnore
+    private LocalDateTime otpExpiry;
+
+    @Column(columnDefinition = "int default 0")
+    @JsonIgnore
+    private Integer otpAttempts = 0;
 
     public User() {}
 
@@ -54,4 +68,13 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public String getOtp() { return otp; }
+    public void setOtp(String otp) { this.otp = otp; }
+
+    public LocalDateTime getOtpExpiry() { return otpExpiry; }
+    public void setOtpExpiry(LocalDateTime otpExpiry) { this.otpExpiry = otpExpiry; }
+
+    public Integer getOtpAttempts() { return otpAttempts; }
+    public void setOtpAttempts(Integer otpAttempts) { this.otpAttempts = otpAttempts; }
 }

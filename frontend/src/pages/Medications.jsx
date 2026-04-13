@@ -14,6 +14,7 @@ const Medications = () => {
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [newMed, setNewMed] = useState({
@@ -55,14 +56,18 @@ const Medications = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to remove this medication?')) return;
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    setIsSubmitting(true);
     try {
-      await medicationService.delete(id);
+      await medicationService.delete(deleteId);
       toast.success('Medication removed');
-      setMedications(medications.filter(m => m.id !== id));
+      setMedications(medications.filter(m => m.id !== deleteId));
+      setDeleteId(null);
     } catch (err) {
       toast.error('Failed to delete medication');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,7 +109,7 @@ const Medications = () => {
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '0.25rem 0.5rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 600 }}>Active</span>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(med.id)} style={{ color: 'var(--color-danger)', padding: '0.25rem' }}>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteId(med.id)} style={{ color: 'var(--color-danger)', padding: '0.25rem' }}>
                           <Trash2 size={16} />
                         </Button>
                       </div>
@@ -167,6 +172,18 @@ const Medications = () => {
              {isSubmitting ? 'Adding...' : 'Add Medication'}
           </Button>
         </form>
+      </Modal>
+
+      <Modal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Confirm Deletion">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Are you sure you want to remove this medication? This action cannot be undone.</p>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+            <Button variant="ghost" style={{ flex: 1 }} onClick={() => setDeleteId(null)}>Cancel</Button>
+            <Button variant="primary" style={{ flex: 1, background: 'var(--color-danger)', border: 'none' }} onClick={confirmDelete} disabled={isSubmitting}>
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

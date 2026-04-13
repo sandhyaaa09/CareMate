@@ -30,10 +30,11 @@ const Appointments = () => {
         appointmentService.getAll(),
         user?.role === 'ROLE_PATIENT' ? appointmentService.getDoctors() : Promise.resolve({ data: [] })
       ]);
-      setAppointments(apptsRes.data);
-      setDoctors(docsRes.data);
-      if (docsRes.data.length > 0) {
-        setBookingData(prev => ({ ...prev, doctorId: docsRes.data[0].id }));
+      setAppointments(apptsRes.data || []);
+      const docsData = docsRes.data || [];
+      setDoctors(docsData);
+      if (docsData.length > 0) {
+        setBookingData(prev => ({ ...prev, doctorId: docsData[0].id }));
       }
     } catch (err) {
       toast.error('Failed to load appointment data');
@@ -56,7 +57,9 @@ const Appointments = () => {
       setBookingData({ doctorId: doctors[0]?.id || '', appointmentTime: '', reason: '' });
       fetchData();
     } catch (err) {
-      toast.error('Failed to book appointment');
+      console.error('Booking error:', err);
+      const msg = err.response?.data?.message || err.message || 'Failed to book appointment';
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }

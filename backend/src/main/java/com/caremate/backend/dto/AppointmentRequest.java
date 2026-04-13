@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class AppointmentRequest {
     private Long doctorId;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime appointmentTime;
     private String reason;
 

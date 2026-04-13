@@ -13,6 +13,8 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import com.caremate.backend.service.EmailService;
+
 @Service
 @EnableScheduling
 public class ReminderScheduler {
@@ -22,8 +24,12 @@ public class ReminderScheduler {
     @Autowired
     private MedicationRepository medicationRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     // Runs every minute to check for due medications
     @Scheduled(fixedRate = 60000)
+    @org.springframework.transaction.annotation.Transactional
     public void checkAndSendReminders() {
         LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
         List<Medication> allMedications = medicationRepository.findAll();
@@ -32,8 +38,14 @@ public class ReminderScheduler {
             LocalTime reminderTime = med.getReminderTime().truncatedTo(ChronoUnit.MINUTES);
             
             if (now.equals(reminderTime)) {
-                // Here we would use Spring Mail to send an email to med.getPatient().getEmail()
-                logger.info("MOCK EMAIL SENT: Reminder for patient {} to take medication: {} ({})", 
+                // Send an email to the patient
+                emailService.sendMedicationReminderEmail(
+                    med.getPatient().getEmail(), 
+                    med.getName(), 
+                    med.getDosage()
+                );
+                
+                logger.info("Real email fired: Reminder for patient {} to take medication: {} ({})", 
                         med.getPatient().getEmail(), med.getName(), med.getDosage());
             }
         }

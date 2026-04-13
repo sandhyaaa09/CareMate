@@ -56,7 +56,8 @@ public class AppointmentController {
         Appointment appointment = new Appointment(
                 patient,
                 doctor,
-                request.getAppointmentTime(),
+                request.getAppointmentTime().toLocalDate(),
+                request.getAppointmentTime().toLocalTime(),
                 "PENDING",
                 request.getReason()
         );

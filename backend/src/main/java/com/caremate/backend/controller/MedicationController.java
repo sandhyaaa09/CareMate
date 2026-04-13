@@ -50,15 +50,27 @@ public class MedicationController {
     }
 
     @DeleteMapping("/{id}")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> deleteMedication(@PathVariable Long id) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Medication med = medicationRepository.findById(id).orElseThrow();
-        
-        if (!med.getPatient().getId().equals(userDetails.getId())) {
-             return ResponseEntity.badRequest().body(new MessageResponse("Unauthorized!"));
-        }
+        System.out.println("DEBUG: Entering deleteMedication for ID " + id);
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Medication med = medicationRepository.findById(id).orElseThrow();
+            
+            System.out.println("DEBUG: Found medication belonging to patient ID " + med.getPatient().getId());
+            
+            if (!med.getPatient().getId().equals(userDetails.getId())) {
+                System.out.println("DEBUG: Unauthorized deletion attempt");
+                return ResponseEntity.badRequest().body(new MessageResponse("Unauthorized!"));
+            }
 
-        medicationRepository.deleteById(id);
-        return ResponseEntity.ok(new MessageResponse("Medication removed successfully!"));
+            medicationRepository.delete(med);
+            System.out.println("DEBUG: Deletion successful");
+            return ResponseEntity.ok(new MessageResponse("Medication removed successfully!"));
+        } catch (Exception e) {
+            System.err.println("DEBUG: Exception during deletion: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

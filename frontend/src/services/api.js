@@ -16,6 +16,15 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Auth Services
+export const authService = {
+  login: (credentials) => api.post('/auth/login', credentials),
+  register: (userData) => api.post('/auth/register', userData),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  verifyOtp: (email, otp) => api.post('/auth/verify-otp', { email, otp }),
+  resetPassword: (email, otp, newPassword) => api.post('/auth/reset-password', { email, otp, newPassword }),
+};
+
 // Medication Services
 export const medicationService = {
   getAll: () => api.get('/medications'),
