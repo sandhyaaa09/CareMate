@@ -12,6 +12,7 @@ import Patients from './pages/Patients';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
+import Chatbot from './components/Chatbot';
 import './index.css';
 
 
@@ -62,6 +63,7 @@ function App() {
           } />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        <Chatbot />
       </Router>
       </AuthProvider>
     </ThemeProvider>
